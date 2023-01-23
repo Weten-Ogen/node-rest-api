@@ -1,8 +1,12 @@
-const http = require("http");
-const server = http.createServer((req,res) => {
-    console.log('starting server');
-    res.write("hello word");
-    
-});
+const express = require('express');
+const app = express();
+const {people} = require('./data')
 
-server.listen(3000);
+app.get("/api/people",(req,res) => {
+    res.status(200).json({success:true, data:people})
+} )
+
+
+app.listen(5000,() => {
+    console.log("Server is Starting ...")
+});
