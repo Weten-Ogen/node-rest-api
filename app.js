@@ -24,47 +24,28 @@ app.get('/book', async (req, res) => {
     res.json(books)
 })
 app.post('/book', async (req,res) =>{
-   
     const db = await connect();
-    
     await db.collection('book').insertOne(req.body);
     res.json({data: "added a book to books"})
     
 })
-app.get('/book/:id', async (req, res) => {
-    const id = req.params.id;
+app.get('/book/:id', async(req, res) => {
+    const  id  = req.params.id;
     const db = await connect();
-    const book = await db.collection('book')
-    .find({_id:objectId(id)})
-    .toArray();
+    const book = await db.collection('book').find({_id:id}).toArray();
     res.json(book)
 })
 
 // users
 app.get('/users', async (req,res) => {
-    
     const db = await connect()
     const users = await db.collection('user').find().toArray();
     res.json(users)
 })
 
-app.post('/users/:id', async (req,res) => {
-    const db = await connect('practice-users');
-    const data = [
-        {
-            name: "Marcus Oware",
-            password: "@richdotcom"
-        },
-        {
-            name: "Gideon Oware",
-            password: "@richcom"
-        },
-        {
-            name: "Micheal Oware",
-            password: "@dotcom"
-        },
-    ]
-    await db.collections('user').insertMany()
+app.post('/users', async (req,res) => {
+    const db = await connect();
+    await db.collection('user').insertOne(req.body)
     res.json ({data: "Added a user"})
 })
 
