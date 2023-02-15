@@ -2,45 +2,56 @@ const express = require('express');
 const app = express();
 const {people} = require('./data')
 const morgan = require('morgan')
-const BodyParser = require('body-parser')
-const { MongoClient } = require('mongodb');
-
-// Connection Url
-const url = 'mongodb://localhost:27017';
-const client = new MongoClient(url);
-
-//Database Name 
-const dbName = 'tryout';
-
-// connection func
-async function connect(){
-    await client.connect();
-    const db = await client.db(dbName);
-    return db;
-}
+const bodyParser = require('body-parser')
+const { MongoClient, ObjectId } = require('mongodb');
+const connect = require('./db') 
 
 
-app.use([morgan('tiny'),BodyParser.json()])
+
+// Home
+app.use([morgan('tiny'), bodyParser.json() ])
 
 app.get('/',async (req,res) =>{
-    await client.connect();
+    const db = await connect('myproject');
     const books = await db.collection('book').find().toArray();
     res.json(books)
 })
-app.get("/api/people",(req,res) => {
-    res.status(200).json({success:true, data:people})
-} )
 
-app.post('/add', async (req,res) =>{
-    await client.connect();
-    const data = {
-        title: 'Power of consistency',  
-        author: 'unknown'
-    }
-    await db.collection('book').insertone(data);
-    res.json({data: "Added a book "})
-
+// Book
+app.get('/book', async (req, res) => {
+    const db = await connect()
+    const books = await db.collection('book').find().toArray();
+    res.json(books)
 })
+app.post('/book', async (req,res) =>{
+    const db = await connect();
+    await db.collection('book').insertOne(req.body);
+    res.json({data: "added a book to books"})
+    
+})
+app.get('/book/:id', async(req, res) => {
+    const  id  = req.params.id;
+    const db = await connect();
+    const book = await db.collection('book').find({_id:id}).toArray();
+    res.json(book)
+})
+
+// users
+app.get('/users', async (req,res) => {
+    const db = await connect()
+    const users = await db.collection('user').find().toArray();
+    res.json(users)
+})
+
+app.post('/users', async (req,res) => {
+    const db = await connect();
+    await db.collection('user').insertOne(req.body)
+    res.json ({data: "Added a user"})
+})
+
+
+// Terminal logs
+
 app.listen(5000,() => {
     console.log("Server is Starting ...")
 });
